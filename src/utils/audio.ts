@@ -1,10 +1,31 @@
 // Web Audio API Synthesizer & MP3 Player Support
 
+type AudioListener = (playing: boolean) => void;
+const stateListeners: Set<AudioListener> = new Set();
+
 let audioCtx: AudioContext | null = null;
 let bgMusicInterval: NodeJS.Timeout | null = null;
 let isPlaying = false;
 let customAudioEl: HTMLAudioElement | null = null;
 let currentSongUrl: string = "/music.mp3";
+
+function notifyListeners(playing: boolean) {
+  stateListeners.forEach((fn) => {
+    try {
+      fn(playing);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+}
+
+export function subscribeAudioState(fn: AudioListener) {
+  stateListeners.add(fn);
+  fn(isPlaying);
+  return () => {
+    stateListeners.delete(fn);
+  };
+}
 
 function getAudioContext(): AudioContext {
   if (!audioCtx) {
@@ -84,11 +105,11 @@ const romanticMelodyNotes = [
 
 let noteIdx = 0;
 
-function startSynthMelody(onStateChange?: (playing: boolean) => void) {
+function startSynthMelody() {
   try {
     const ctx = getAudioContext();
     isPlaying = true;
-    if (onStateChange) onStateChange(true);
+    notifyListeners(true);
 
     const step = () => {
       if (!isPlaying) return;
@@ -117,7 +138,7 @@ function startSynthMelody(onStateChange?: (playing: boolean) => void) {
   } catch (e) {
     console.error("Synth melody error:", e);
     isPlaying = false;
-    if (onStateChange) onStateChange(false);
+    notifyListeners(false);
   }
 }
 
@@ -146,6 +167,16 @@ export function startRomanticMelody(onStateChange?: (playing: boolean) => void, 
       customAudioEl = new Audio(targetUrl);
       customAudioEl.loop = true;
       customAudioEl.volume = 0.6;
+      customAudioEl.onplay = () => {
+        isPlaying = true;
+        notifyListeners(true);
+        if (onStateChange) onStateChange(true);
+      };
+      customAudioEl.onpause = () => {
+        isPlaying = false;
+        notifyListeners(false);
+        if (onStateChange) onStateChange(false);
+      };
     }
 
     customAudioEl
@@ -153,15 +184,17 @@ export function startRomanticMelody(onStateChange?: (playing: boolean) => void, 
       .then(() => {
         isPlaying = true;
         stopSynthMelody();
+        notifyListeners(true);
         if (onStateChange) onStateChange(true);
       })
       .catch((err) => {
         console.warn("Could not play custom audio file, falling back to romantic piano synthesizer:", err);
-        // Fallback to pleasant built-in synthesizer
-        startSynthMelody(onStateChange);
+        startSynthMelody();
+        if (onStateChange) onStateChange(true);
       });
   } else {
-    startSynthMelody(onStateChange);
+    startSynthMelody();
+    if (onStateChange) onStateChange(true);
   }
 }
 
@@ -171,6 +204,7 @@ export function stopRomanticMelody(onStateChange?: (playing: boolean) => void) {
   if (customAudioEl) {
     customAudioEl.pause();
   }
+  notifyListeners(false);
   if (onStateChange) onStateChange(false);
 }
 

@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Music, Volume2, VolumeX } from "lucide-react";
-import { toggleRomanticMelody, getIsPlayingMelody, playHeartPop } from "@/utils/audio";
+import {
+  toggleRomanticMelody,
+  getIsPlayingMelody,
+  subscribeAudioState,
+  playHeartPop,
+} from "@/utils/audio";
 
 interface AudioPlayerProps {
   songUrl?: string;
@@ -12,16 +17,16 @@ export default function AudioPlayer({ songUrl }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    // Check initial state
     setIsPlaying(getIsPlayingMelody());
+    const unsub = subscribeAudioState((playing) => {
+      setIsPlaying(playing);
+    });
+    return unsub;
   }, []);
 
   const handleToggle = () => {
     playHeartPop();
-    const active = toggleRomanticMelody((playing) => {
-      setIsPlaying(playing);
-    }, songUrl);
-    setIsPlaying(active);
+    toggleRomanticMelody(undefined, songUrl);
   };
 
   return (
