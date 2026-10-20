@@ -539,10 +539,12 @@ html, body {
 }
 
 .section-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
+  font-weight: 700;
   font-size: 2rem;
   color: #fff;
   margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
 }
 
 .section-desc {

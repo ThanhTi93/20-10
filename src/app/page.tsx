@@ -114,14 +114,14 @@ function MainContent() {
             letterMessage={config.letterMessage}
           />
 
-          {/* 3. Exclusive Husband Gift Vouchers */}
+          {/* 3. Sweet Photo Moments */}
+          <SweetMoments />
+
+          {/* 4. Exclusive Husband Gift Vouchers */}
           <HusbandCoupons wifeName={config.wifeName} />
 
-          {/* 4. Reasons Why I Love You */}
+          {/* 5. Reasons Why I Love You */}
           <ReasonsLoveYou wifeName={config.wifeName} />
-
-          {/* 5. Sweet Photo Moments */}
-          <SweetMoments />
 
           {/* 6. Compliment & Sweet Candy Jar */}
           <ComplimentGenerator wifeName={config.wifeName} />
