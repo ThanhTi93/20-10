@@ -33,14 +33,18 @@ function MainContent() {
       const savedConfig = localStorage.getItem("wife_2010_config");
       let base = DEFAULT_CONFIG;
       if (savedConfig) {
-        base = { ...base, ...JSON.parse(savedConfig) };
+        const parsed = JSON.parse(savedConfig);
+        if (parsed.startDate === "2020-10-20") {
+          parsed.startDate = DEFAULT_CONFIG.startDate;
+        }
+        base = { ...base, ...parsed };
       }
 
       const merged: CoupleConfig = {
         ...base,
         wifeName: wifeParam || base.wifeName,
         husbandName: husbandParam || base.husbandName,
-        startDate: dateParam || base.startDate,
+        startDate: dateParam || (base.startDate === "2020-10-20" ? DEFAULT_CONFIG.startDate : base.startDate),
       };
 
       setConfig(merged);

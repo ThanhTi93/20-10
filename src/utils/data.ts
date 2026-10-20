@@ -3,7 +3,7 @@ import { CoupleConfig, CouponItem, ReasonItem } from "@/types";
 export const DEFAULT_CONFIG: CoupleConfig = {
   wifeName: "Vợ Yêu",
   husbandName: "Chồng Cưng",
-  startDate: "2020-10-20", // Default memorable date
+  startDate: "2023-08-06", // Ngày 06/08/2023 dương lịch
   letterTitle: "Gửi người phụ nữ tuyệt vời nhất của cuộc đời anh",
   letterMessage: `Nhân ngày Phụ nữ Việt Nam 20/10, anh muốn dành những lời chân thành và ấm áp nhất gửi đến em — người vợ dịu dàng, người bạn đồng hành tuyệt vời và là bến đỗ bình yên nhất của anh.
 
