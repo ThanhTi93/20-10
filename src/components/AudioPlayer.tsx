@@ -1,0 +1,56 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Music, Volume2, VolumeX } from "lucide-react";
+import { toggleRomanticMelody, getIsPlayingMelody, playHeartPop } from "@/utils/audio";
+
+export default function AudioPlayer() {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    // Check initial state
+    setIsPlaying(getIsPlayingMelody());
+  }, []);
+
+  const handleToggle = () => {
+    playHeartPop();
+    const active = toggleRomanticMelody((playing) => {
+      setIsPlaying(playing);
+    });
+    setIsPlaying(active);
+  };
+
+  return (
+    <div className="audio-widget-container">
+      <button
+        id="btn-toggle-music"
+        onClick={handleToggle}
+        className={`audio-toggle-button ${isPlaying ? "playing" : ""}`}
+        title={isPlaying ? "Tắt nhạc lãng mạn" : "Bật nhạc lãng mạn"}
+        aria-label="Toggle background music"
+      >
+        <div className="audio-disc-icon">
+          <Music size={18} className={isPlaying ? "spin-music" : ""} />
+        </div>
+        <span className="audio-label">
+          {isPlaying ? (
+            <>
+              <Volume2 size={16} /> Nhạc Lãng Mạn (Đang phát)
+            </>
+          ) : (
+            <>
+              <VolumeX size={16} /> Bật Nhạc
+            </>
+          )}
+        </span>
+        {isPlaying && (
+          <div className="sound-waves">
+            <span className="wave-bar bar-1" />
+            <span className="wave-bar bar-2" />
+            <span className="wave-bar bar-3" />
+          </div>
+        )}
+      </button>
+    </div>
+  );
+}
