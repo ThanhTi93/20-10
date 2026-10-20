@@ -7,10 +7,11 @@ import { Heart, Sparkles } from "lucide-react";
 
 interface EnvelopeIntroProps {
   wifeName: string;
+  songUrl?: string;
   onOpen: () => void;
 }
 
-export default function EnvelopeIntro({ wifeName, onOpen }: EnvelopeIntroProps) {
+export default function EnvelopeIntro({ wifeName, songUrl, onOpen }: EnvelopeIntroProps) {
   const [isOpening, setIsOpening] = useState(false);
 
   const handleOpenEnvelope = () => {
@@ -19,7 +20,7 @@ export default function EnvelopeIntro({ wifeName, onOpen }: EnvelopeIntroProps) 
 
     // Audio effects
     playChime();
-    startRomanticMelody();
+    startRomanticMelody(undefined, songUrl);
 
     // Multistage Confetti explosion
     confetti({

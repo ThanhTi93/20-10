@@ -4,7 +4,11 @@ import { useState, useEffect } from "react";
 import { Music, Volume2, VolumeX } from "lucide-react";
 import { toggleRomanticMelody, getIsPlayingMelody, playHeartPop } from "@/utils/audio";
 
-export default function AudioPlayer() {
+interface AudioPlayerProps {
+  songUrl?: string;
+}
+
+export default function AudioPlayer({ songUrl }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
@@ -16,7 +20,7 @@ export default function AudioPlayer() {
     playHeartPop();
     const active = toggleRomanticMelody((playing) => {
       setIsPlaying(playing);
-    });
+    }, songUrl);
     setIsPlaying(active);
   };
 

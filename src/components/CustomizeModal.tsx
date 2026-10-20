@@ -150,6 +150,22 @@ export default function CustomizeModal({ config, onSave }: CustomizeModalProps) 
                 />
               </div>
 
+              <div className="form-field">
+                <label htmlFor="input-song-url">Nhạc nền (File MP3 hoặc Link online):</label>
+                <input
+                  id="input-song-url"
+                  type="text"
+                  value={formData.songUrl || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, songUrl: e.target.value })
+                  }
+                  placeholder="Ví dụ: /music.mp3 hoặc https://...mp3 (để trống để dùng nhạc piano mặc định)"
+                />
+                <span style={{ fontSize: "0.75rem", color: "#fda4af", marginTop: "2px" }}>
+                  💡 Gợi ý: Bỏ file bài hát bạn thích vào thư mục <code>public/music.mp3</code> trong dự án là tự động phát!
+                </span>
+              </div>
+
               {/* Share link generation box */}
               <div className="share-link-box">
                 <div className="share-link-info">

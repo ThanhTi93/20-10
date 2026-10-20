@@ -1,16 +1,19 @@
-// Web Audio API Synthesizer & Sound Effects
-// Works 100% reliably in any modern browser without external audio files
+// Web Audio API Synthesizer & MP3 Player Support
 
 let audioCtx: AudioContext | null = null;
 let bgMusicInterval: NodeJS.Timeout | null = null;
-let isPlayingMelody = false;
+let isPlaying = false;
+let customAudioEl: HTMLAudioElement | null = null;
+let currentSongUrl: string = "/music.mp3";
 
 function getAudioContext(): AudioContext {
   if (!audioCtx) {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     audioCtx = new AudioContextClass();
   }
-  if (audioCtx.state === 'suspended') {
+  if (audioCtx.state === "suspended") {
     audioCtx.resume();
   }
   return audioCtx;
@@ -20,12 +23,12 @@ function getAudioContext(): AudioContext {
 export function playChime() {
   try {
     const ctx = getAudioContext();
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
     notes.forEach((freq, index) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
-      osc.type = 'sine';
+      osc.type = "sine";
       osc.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.1);
 
       gain.gain.setValueAtTime(0, ctx.currentTime + index * 0.1);
@@ -50,7 +53,7 @@ export function playHeartPop() {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
-    osc.type = 'sine';
+    osc.type = "sine";
     osc.frequency.setValueAtTime(440, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
 
@@ -67,38 +70,35 @@ export function playHeartPop() {
   }
 }
 
-// Soft romantic melody arpeggio (Music Box style)
+// Romantic melody notes for synthesized fallback
 const romanticMelodyNotes = [
-  // C major - G - Am - F progression (warm, emotional, gentle)
-  261.63, 329.63, 392.00, 523.25, // C - E - G - C
-  196.00, 293.66, 392.00, 493.88, // G - D - G - B
-  220.00, 261.63, 329.63, 440.00, // A - C - E - A
-  174.61, 261.63, 349.23, 440.00, // F - C - F - A
-  261.63, 329.63, 392.00, 523.25, // C - E - G - C
-  196.00, 293.66, 392.00, 587.33, // G - D - G - D
-  220.00, 329.63, 440.00, 523.25, // A - E - A - C
-  174.61, 261.63, 349.23, 523.25  // F - C - F - C
+  261.63, 329.63, 392.0, 523.25,
+  196.0, 293.66, 392.0, 493.88,
+  220.0, 261.63, 329.63, 440.0,
+  174.61, 261.63, 349.23, 440.0,
+  261.63, 329.63, 392.0, 523.25,
+  196.0, 293.66, 392.0, 587.33,
+  220.0, 329.63, 440.0, 523.25,
+  174.61, 261.63, 349.23, 523.25,
 ];
 
 let noteIdx = 0;
 
-export function startRomanticMelody(onStateChange?: (playing: boolean) => void) {
-  if (isPlayingMelody) return;
+function startSynthMelody(onStateChange?: (playing: boolean) => void) {
   try {
     const ctx = getAudioContext();
-    isPlayingMelody = true;
+    isPlaying = true;
     if (onStateChange) onStateChange(true);
 
     const step = () => {
-      if (!isPlayingMelody) return;
+      if (!isPlaying) return;
       const freq = romanticMelodyNotes[noteIdx % romanticMelodyNotes.length];
       noteIdx++;
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
-      // Warm celesta/rhodes piano tone
-      osc.type = 'triangle';
+      osc.type = "triangle";
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
       gain.gain.setValueAtTime(0, ctx.currentTime);
@@ -115,31 +115,75 @@ export function startRomanticMelody(onStateChange?: (playing: boolean) => void) 
     step();
     bgMusicInterval = setInterval(step, 400);
   } catch (e) {
-    console.error("Melody error:", e);
-    isPlayingMelody = false;
+    console.error("Synth melody error:", e);
+    isPlaying = false;
     if (onStateChange) onStateChange(false);
   }
 }
 
-export function stopRomanticMelody(onStateChange?: (playing: boolean) => void) {
-  isPlayingMelody = false;
+function stopSynthMelody() {
   if (bgMusicInterval) {
     clearInterval(bgMusicInterval);
     bgMusicInterval = null;
   }
+}
+
+export function setCustomSongUrl(url: string) {
+  if (url !== currentSongUrl) {
+    currentSongUrl = url;
+    if (customAudioEl) {
+      customAudioEl.pause();
+      customAudioEl = null;
+    }
+  }
+}
+
+export function startRomanticMelody(onStateChange?: (playing: boolean) => void, songUrl?: string) {
+  const targetUrl = songUrl || currentSongUrl;
+
+  if (targetUrl) {
+    if (!customAudioEl || customAudioEl.src !== targetUrl) {
+      customAudioEl = new Audio(targetUrl);
+      customAudioEl.loop = true;
+      customAudioEl.volume = 0.6;
+    }
+
+    customAudioEl
+      .play()
+      .then(() => {
+        isPlaying = true;
+        stopSynthMelody();
+        if (onStateChange) onStateChange(true);
+      })
+      .catch((err) => {
+        console.warn("Could not play custom audio file, falling back to romantic piano synthesizer:", err);
+        // Fallback to pleasant built-in synthesizer
+        startSynthMelody(onStateChange);
+      });
+  } else {
+    startSynthMelody(onStateChange);
+  }
+}
+
+export function stopRomanticMelody(onStateChange?: (playing: boolean) => void) {
+  isPlaying = false;
+  stopSynthMelody();
+  if (customAudioEl) {
+    customAudioEl.pause();
+  }
   if (onStateChange) onStateChange(false);
 }
 
-export function toggleRomanticMelody(onStateChange?: (playing: boolean) => void): boolean {
-  if (isPlayingMelody) {
+export function toggleRomanticMelody(onStateChange?: (playing: boolean) => void, songUrl?: string): boolean {
+  if (isPlaying) {
     stopRomanticMelody(onStateChange);
     return false;
   } else {
-    startRomanticMelody(onStateChange);
+    startRomanticMelody(onStateChange, songUrl);
     return true;
   }
 }
 
 export function getIsPlayingMelody(): boolean {
-  return isPlayingMelody;
+  return isPlaying;
 }

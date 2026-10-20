@@ -28,6 +28,7 @@ function MainContent() {
     const wifeParam = searchParams.get("wife");
     const husbandParam = searchParams.get("husband");
     const dateParam = searchParams.get("date");
+    const songParam = searchParams.get("song");
 
     try {
       const savedConfig = localStorage.getItem("wife_2010_config");
@@ -45,6 +46,7 @@ function MainContent() {
         wifeName: wifeParam || base.wifeName,
         husbandName: husbandParam || base.husbandName,
         startDate: dateParam || (base.startDate === "2020-10-20" ? DEFAULT_CONFIG.startDate : base.startDate),
+        songUrl: songParam || base.songUrl,
       };
 
       setConfig(merged);
@@ -81,12 +83,13 @@ function MainContent() {
       <PetalCanvas />
 
       {/* Floating Audio Controller */}
-      <AudioPlayer />
+      <AudioPlayer songUrl={config.songUrl} />
 
       {/* Opening Envelope Experience */}
       {!isOpened && (
         <EnvelopeIntro
           wifeName={config.wifeName}
+          songUrl={config.songUrl}
           onOpen={() => setIsOpened(true)}
         />
       )}

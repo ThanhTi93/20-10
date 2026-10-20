@@ -10,6 +10,7 @@ export const DEFAULT_CONFIG: CoupleConfig = {
 Cảm ơn em vì đã luôn ở bên cạnh, cùng anh chia sẻ từng bữa cơm, từng niềm vui nhỏ bé và cả những lúc khó khăn. Sự chu đáo, nụ cười rạng rỡ và tình yêu của em chính là động lực lớn nhất để anh nỗ lực mỗi ngày.
 
 Chúc vợ của anh ngày 20/10 thật nhiều niềm vui, luôn xinh đẹp rạng ngời, mãi giữ nụ cười hạnh phúc trên môi và an tâm rằng phía sau em luôn có anh che chở, yêu thương vô điều kiện! Yêu vợ rất nhiều ❤️`,
+  songUrl: "/music.mp3",
 };
 
 export const INITIAL_COUPONS: CouponItem[] = [
