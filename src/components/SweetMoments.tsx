@@ -16,21 +16,21 @@ interface SweetPhoto {
 const DEFAULT_PHOTOS: SweetPhoto[] = [
   {
     id: "default-1",
-    url: "/images/bouquet.jpg",
+    url: "/images/bouquet.jpg?v=2",
     caption: "Bó hoa tươi thắm nhất dành tặng ngày 20/10 của vợ yêu 💐",
     date: "20/10/2026",
     rotation: -3,
   },
   {
     id: "default-2",
-    url: "/images/couple.jpg",
+    url: "/images/couple.jpg?v=2",
     caption: "Bình yên nhất là được nắm tay em đi qua mọi giông bão 🌅",
     date: "Khoảnh khắc yêu thương",
     rotation: 2,
   },
   {
     id: "default-3",
-    url: "/images/cake.jpg",
+    url: "/images/cake.jpg?v=2",
     caption: "Mọi sự ngọt ngào đều không sánh bằng nụ cười của em 🍰",
     date: "Ngọt ngào bên nhau",
     rotation: -2,
@@ -45,8 +45,14 @@ export default function SweetMoments() {
     try {
       const saved = localStorage.getItem("wife_moments_photos");
       if (saved) {
-        setPhotos(JSON.parse(saved));
+        const parsed: SweetPhoto[] = JSON.parse(saved);
+        const customOnly = parsed.filter((p) => p.id.startsWith("custom-"));
+        if (customOnly.length > 0) {
+          setPhotos([...DEFAULT_PHOTOS, ...customOnly]);
+          return;
+        }
       }
+      setPhotos(DEFAULT_PHOTOS);
     } catch (e) {
       console.error(e);
     }
@@ -121,7 +127,7 @@ export default function SweetMoments() {
                 width={500}
                 height={500}
                 className="polaroid-img"
-                unoptimized={item.url.startsWith("data:")}
+                unoptimized={true}
               />
             </div>
 
